@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaskBot name="Employee_Onboarding_Workflow" product="Automation Anywhere" version="Sample-Template">
+  <TaskProperties>
+    <Description>Sample employee onboarding workflow template for RPA-based HR onboarding.</Description>
+    <Author>Perplexity</Author>
+    <CreatedDate>2026-04-25</CreatedDate>
+    <Type>TaskBot</Type>
+  </TaskProperties>
+
+  <Variables>
+    <Variable name="$Candidate_ID$" type="String" default="SE_12345" />
+    <Variable name="$First_Name$" type="String" default="" />
+    <Variable name="$Last_Name$" type="String" default="" />
+    <Variable name="$Personal_Email$" type="String" default="" />
+    <Variable name="$Manager_Email$" type="String" default="" />
+    <Variable name="$Location$" type="String" default="" />
+    <Variable name="$Department$" type="String" default="" />
+    <Variable name="$Job_Title$" type="String" default="" />
+    <Variable name="$Employee_ID$" type="String" default="" />
+    <Variable name="$Employee_Email$" type="String" default="" />
+    <Variable name="$Candidate_Found$" type="Boolean" default="False" />
+    <Variable name="$Status$" type="String" default="Started" />
+  </Variables>
+
+  <Commands>
+    <Command step="1" name="StartProcess">
+      <Action>Log start of onboarding workflow</Action>
+    </Command>
+
+    <Command step="2" name="InputCandidateID">
+      <Action>Accept candidate ID from HR form or control room input</Action>
+      <Input variable="$Candidate_ID$" />
+    </Command>
+
+    <Command step="3" name="RetrieveCandidateFromJobVite">
+      <Action>Run recruitment-system bot to fetch candidate details</Action>
+      <Input variable="$Candidate_ID$" />
+      <Output variable="$First_Name$" />
+      <Output variable="$Last_Name$" />
+      <Output variable="$Personal_Email$" />
+      <Output variable="$Manager_Email$" />
+      <Output variable="$Location$" />
+      <Output variable="$Department$" />
+      <Output variable="$Job_Title$" />
+      <Output variable="$Candidate_Found$" />
+    </Command>
+
+    <Command step="4" name="ValidateCandidate">
+      <If condition="$Candidate_Found$ == True">
+        <Then>Proceed to confirmation</Then>
+        <Else>Return to HR for Candidate ID correction and re-run retrieval</Else>
+      </If>
+    </Command>
+
+    <Command step="5" name="ConfirmEmployeeDetails">
+      <Action>Display non-editable review form for HR validation</Action>
+      <Input variable="$First_Name$" />
+      <Input variable="$Last_Name$" />
+      <Input variable="$Personal_Email$" />
+      <Input variable="$Manager_Email$" />
+      <Input variable="$Location$" />
+      <Input variable="$Department$" />
+      <Input variable="$Job_Title$" />
+    </Command>
+
+    <Command step="6" name="ModifyDetailsIfNeeded">
+      <Action>Allow HR to correct fields in editable form if discrepancies exist</Action>
+    </Command>
+
+    <Command step="7" name="CreateWorkdayEmployeeRecord">
+      <Action>Run Workday creation bot</Action>
+      <Input variable="$First_Name$" />
+      <Input variable="$Last_Name$" />
+      <Input variable="$Personal_Email$" />
+      <Input variable="$Manager_Email$" />
+      <Input variable="$Location$" />
+      <Input variable="$Department$" />
+      <Input variable="$Job_Title$" />
+      <Output variable="$Employee_ID$" />
+    </Command>
+
+    <Command step="8" name="ProvisionITAccess">
+      <Action>Run IT provisioning process for laptop, email, access rights, and software tools</Action>
+      <Input variable="$Employee_ID$" />
+      <Input variable="$First_Name$" />
+      <Input variable="$Last_Name$" />
+      <Input variable="$Department$" />
+      <Input variable="$Location$" />
+    </Command>
+
+    <Command step="9" name="ConstructEmployeeEmail">
+      <Action>Build corporate email address from name</Action>
+      <Formula>$First_Name$.$Last_Name$@company.com</Formula>
+      <Output variable="$Employee_Email$" />
+    </Command>
+
+    <Command step="10" name="SendWelcomeEmail">
+      <Action>Send welcome email to employee, manager, and onboarding buddy</Action>
+      <Input variable="$Employee_Email$" />
+      <Input variable="$Manager_Email$" />
+    </Command>
+
+    <Command step="11" name="CloseProcess">
+      <Action>Set final workflow status</Action>
+      <Output variable="$Status$" value="Success" />
+    </Command>
+  </Commands>
+</TaskBot>
